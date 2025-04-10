@@ -27,11 +27,14 @@ function updateSize() {
     camera.updateProjectionMatrix();
 }
 
-// Initial size setup
-updateSize();
+// Initial size setup - need to wait a bit for the DOM to be ready
+setTimeout(() => {
+    updateSize();
+}, 0);
 
-// Camera position
-camera.position.z = 5;
+// Camera position - set to view from top-right-front
+camera.position.set(3, 4, 5); // x, y, z position
+camera.lookAt(0, 0, 0); // look at the center
 
 // Add orbit controls
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -42,6 +45,7 @@ controls.dampingFactor = 0.05;
 function handleControlsVisibility() {
     const isControlsVisible = controlsPanel.classList.contains('visible');
     document.body.classList.toggle('controls-visible', isControlsVisible);
+    updateSize(); // Immediately update size
 
     // Start monitoring size changes during the transition
     const startTime = Date.now();
@@ -57,6 +61,11 @@ function handleControlsVisibility() {
     }
 
     requestAnimationFrame(updateDuringTransition);
+}
+
+// Call handleControlsVisibility initially if controls are visible
+if (controlsPanel.classList.contains('visible')) {
+    handleControlsVisibility();
 }
 
 // Handle controls toggle
@@ -75,17 +84,22 @@ document.getElementById('canvas-container').addEventListener('click', (e) => {
 
 // Create cube
 const geometry = new THREE.BoxGeometry(1, 1, 1);
-// Create materials for the cube
-const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
-const faceMaterial = new THREE.MeshPhongMaterial({ 
-    color: 0xffffff,
-    transparent: true,
-    opacity: 0.5,
-    side: THREE.DoubleSide
-});
 
-// Create the main cube with translucent faces
-const cube = new THREE.Mesh(geometry, faceMaterial);
+// Create materials for each face (matching axis colors)
+const materials = [
+    new THREE.MeshPhongMaterial({ color: 0xff0000, transparent: true, opacity: 0.5 }), // Right face (positive X) - Red
+    new THREE.MeshPhongMaterial({ color: 0xff0000, transparent: true, opacity: 0.5 }), // Left face (negative X) - Red
+    new THREE.MeshPhongMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 }), // Top face (positive Y) - Green
+    new THREE.MeshPhongMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 }), // Bottom face (negative Y) - Green
+    new THREE.MeshPhongMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5 }), // Front face (positive Z) - Blue
+    new THREE.MeshPhongMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5 })  // Back face (negative Z) - Blue
+];
+
+// Create materials for the cube edges
+const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+
+// Create the main cube with translucent colored faces
+const cube = new THREE.Mesh(geometry, materials);
 
 // Create edges for the cube
 const edges = new THREE.EdgesGeometry(geometry);
@@ -102,9 +116,9 @@ directionalLight.position.set(5, 5, 5);
 scene.add(directionalLight);
 
 // Add grid helper (ground plane)
-const size = 10;
-const divisions = 10;
-const gridHelper = new THREE.GridHelper(size, divisions);
+const size = 1000; // 增加網格範圍
+const divisions = 1000; // 增加網格線條數量
+const gridHelper = new THREE.GridHelper(size, divisions, 0xE0E0E0, 0xE0E0E0); // 使用更淡的灰色
 scene.add(gridHelper);
 
 // Add axes helper (X = red, Y = green, Z = blue)

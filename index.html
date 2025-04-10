@@ -45,18 +45,15 @@
             position: fixed;
             right: 20px;
             top: 20px;
-            z-index: 2;
+            z-index: 1000;
             padding: 10px;
             background: #f0f0f0;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: right 0.3s ease;
         }
-        body.controls-visible #toggle-controls {
-            right: 320px;
-        }
+        /* 移除控制面板開啟時按鈕的位置變化 */
         #toggle-controls:hover {
             background: #e0e0e0;
         }
@@ -74,10 +71,21 @@
         }
         .slider-container {
             margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        label {
-            display: inline-block;
-            width: 100px;
+        .slider-container label {
+            min-width: 60px;
+        }
+        .slider-container input[type="range"] {
+            flex: 1;
+            min-width: 100px;
+        }
+        .slider-container .value-display {
+            min-width: 30px;
+            text-align: right;
+           width: 100px;
         }
         input[type="range"] {
             width: 150px;
@@ -89,10 +97,10 @@
         }
     </style>
 </head>
-<body>
+<body class="controls-visible">
     <button id="toggle-controls">⚙️ Controls</button>
     <div id="canvas-container"></div>
-    <div id="controls">
+    <div id="controls" class="visible">
         <div class="control-group">
             <h3>Position</h3>
             <div class="slider-container">
