@@ -38,30 +38,38 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 
-// Function to update camera position and scene
-function updateCameraPosition() {
+// Function to handle controls visibility change
+function handleControlsVisibility() {
     const isControlsVisible = controlsPanel.classList.contains('visible');
-    if (isControlsVisible && window.innerWidth > 600) {
-        // When controls are visible on desktop, offset the target to the left
-        controls.target.set(-1, 0, 0);
-    } else {
-        // When controls are hidden or on mobile, center the target
-        controls.target.set(0, 0, 0);
+    document.body.classList.toggle('controls-visible', isControlsVisible);
+
+    // Start monitoring size changes during the transition
+    const startTime = Date.now();
+    const duration = 300; // Match the CSS transition duration
+
+    function updateDuringTransition() {
+        const elapsed = Date.now() - startTime;
+        updateSize();
+
+        if (elapsed < duration) {
+            requestAnimationFrame(updateDuringTransition);
+        }
     }
-    controls.update();
+
+    requestAnimationFrame(updateDuringTransition);
 }
 
 // Handle controls toggle
 toggleButton.addEventListener('click', () => {
     controlsPanel.classList.toggle('visible');
-    updateCameraPosition();
+    handleControlsVisibility();
 });
 
 // Hide controls when clicking on canvas (mobile-friendly)
 document.getElementById('canvas-container').addEventListener('click', (e) => {
     if (window.innerWidth <= 600) {
         controlsPanel.classList.remove('visible');
-        updateCameraPosition();
+        handleControlsVisibility();
     }
 });
 
@@ -109,7 +117,6 @@ scene.add(axesHelper);
 // Handle window resize
 window.addEventListener('resize', () => {
     updateSize();
-    updateCameraPosition();
 });
 
 // Control handlers
@@ -152,12 +159,10 @@ function animate() {
     cube.scale.y = parseFloat(document.getElementById('scaleY').value);
     cube.scale.z = parseFloat(document.getElementById('scaleZ').value);
 
-    // Update camera distance
+    // Update camera distance while maintaining direction
     const distance = parseFloat(document.getElementById('cameraDistance').value);
-    const cameraDirection = new THREE.Vector3();
-    camera.getWorldDirection(cameraDirection);
-    cameraDirection.multiplyScalar(-distance);
-    camera.position.copy(cameraDirection);
+    const currentDirection = camera.position.clone().sub(controls.target).normalize();
+    camera.position.copy(controls.target).add(currentDirection.multiplyScalar(distance));
 
     controls.update();
     renderer.render(scene, camera);

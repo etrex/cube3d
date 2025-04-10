@@ -14,9 +14,12 @@
             overflow: hidden;
         }
         #canvas-container {
-            flex: 1;
+            position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
             height: 100%;
-            position: relative;
+            transition: right 0.3s ease;
         }
         #controls {
             position: fixed;
@@ -30,21 +33,29 @@
             transition: transform 0.3s ease;
             overflow-y: auto;
             box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+            z-index: 1;
         }
         #controls.visible {
             transform: translateX(0);
+        }
+        body.controls-visible #canvas-container {
+            right: 300px;
         }
         #toggle-controls {
             position: fixed;
             right: 20px;
             top: 20px;
-            z-index: 1000;
+            z-index: 2;
             padding: 10px;
             background: #f0f0f0;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: right 0.3s ease;
+        }
+        body.controls-visible #toggle-controls {
+            right: 320px;
         }
         #toggle-controls:hover {
             background: #e0e0e0;
