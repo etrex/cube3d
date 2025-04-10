@@ -10,14 +10,53 @@
             display: flex;
             font-family: Arial, sans-serif;
             background: white;
+            height: 100vh;
+            overflow: hidden;
         }
         #canvas-container {
             flex: 1;
+            height: 100%;
+            position: relative;
         }
         #controls {
+            position: fixed;
+            right: 0;
+            top: 0;
             width: 300px;
+            height: 100%;
             padding: 20px;
             background: #f0f0f0;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+        }
+        #controls.visible {
+            transform: translateX(0);
+        }
+        #toggle-controls {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            z-index: 1000;
+            padding: 10px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        #toggle-controls:hover {
+            background: #e0e0e0;
+        }
+        @media (max-width: 600px) {
+            #controls {
+                width: 80%;
+            }
+            #toggle-controls {
+                right: 10px;
+                top: 10px;
+            }
         }
         .control-group {
             margin-bottom: 20px;
@@ -40,6 +79,7 @@
     </style>
 </head>
 <body>
+    <button id="toggle-controls">⚙️ Controls</button>
     <div id="canvas-container"></div>
     <div id="controls">
         <div class="control-group">

@@ -3,11 +3,67 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 // Scene setup
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+// Initialize renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth - 300, window.innerHeight); // Subtract control panel width
 renderer.setClearColor(0xffffff); // Set background to white
 document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+// Initialize camera with placeholder aspect ratio (will be updated)
+const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+
+// Get DOM elements
+const controlsPanel = document.getElementById('controls');
+const toggleButton = document.getElementById('toggle-controls');
+
+// Function to update renderer and camera when window size changes
+function updateSize() {
+    const container = document.getElementById('canvas-container');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    
+    renderer.setSize(width, height);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+}
+
+// Initial size setup
+updateSize();
+
+// Camera position
+camera.position.z = 5;
+
+// Add orbit controls
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+
+// Function to update camera position and scene
+function updateCameraPosition() {
+    const isControlsVisible = controlsPanel.classList.contains('visible');
+    if (isControlsVisible && window.innerWidth > 600) {
+        // When controls are visible on desktop, offset the target to the left
+        controls.target.set(-1, 0, 0);
+    } else {
+        // When controls are hidden or on mobile, center the target
+        controls.target.set(0, 0, 0);
+    }
+    controls.update();
+}
+
+// Handle controls toggle
+toggleButton.addEventListener('click', () => {
+    controlsPanel.classList.toggle('visible');
+    updateCameraPosition();
+});
+
+// Hide controls when clicking on canvas (mobile-friendly)
+document.getElementById('canvas-container').addEventListener('click', (e) => {
+    if (window.innerWidth <= 600) {
+        controlsPanel.classList.remove('visible');
+        updateCameraPosition();
+    }
+});
 
 // Create cube
 const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -47,21 +103,13 @@ scene.add(gridHelper);
 const axesHelper = new THREE.AxesHelper(5);
 scene.add(axesHelper);
 
-// Camera position
-camera.position.z = 5;
 
-// Add orbit controls
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.05;
 
 // Handle window resize
+// Handle window resize
 window.addEventListener('resize', () => {
-    const width = window.innerWidth - 300;
-    const height = window.innerHeight;
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-    renderer.setSize(width, height);
+    updateSize();
+    updateCameraPosition();
 });
 
 // Control handlers
